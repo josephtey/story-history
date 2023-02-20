@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button, Form, Input } from "antd";
 import { useParams } from "react-router";
 import db from "../firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const { TextArea } = Input;
 
@@ -39,7 +39,7 @@ const TeacherStoryEditor = (props) => {
       chapters.push(chapter);
     }
 
-    await setDoc(doc(db, "stories", id), {
+    await updateDoc(doc(db, "stories", id), {
       metaData: storyData.metaData,
       chapters,
     });

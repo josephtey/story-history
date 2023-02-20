@@ -1,71 +1,118 @@
-import react, { useState } from "react";
-import { Input } from "antd";
+import react, { useState, useEffect } from "react";
+import { Input, Button } from "antd";
+import { callGPT3 } from "../gpt";
 
-const context =
-  "You are a psychologist that is gentle, empathetic, and cares for others.";
+const Conversation = ({ characterInfo, storySoFar, nextPage }) => {
+  const [messages, setMessages] = useState([]);
+  const [currentMessage, setCurrentMessage] = useState("");
 
-const composePrompt = (messages) => {
-  let history = `${context}\n`;
+  const context = `You are going to be engaging in conversation with a reader. Begin the conversation by introducing your name, a brief background about your life, and an introductory question to your reader. The conversation should last a maximum of 10 exchanges, or until your reader says good bye to you, after which, you will end the conversation, and bid the reader farewell. 
 
-  for (let i = 0; i < messages.length; i++) {
-    history += messages[i].user + ": " + messages[i].text + "\n";
-  }
+  This is who you are: ${characterInfo.introduction}
+  
+  This is the story you are a part of:  ${storySoFar}
+  `;
 
-  history += "You:";
-  return history;
-};
+  const composePrompt = (messages) => {
+    let history = `${context}\n`;
 
-const Conversation = () => {
-  const [messages, setMessages] = useState([
-    {
-      user: "Horatio",
-      text: "Hi! How are you?",
-    },
-    {
-      user: "You",
-      text: "Good!",
-    },
-    {
-      user: "Horatio",
-      text: "Amazing!",
-    },
-  ]);
+    for (let i = 0; i < messages.length; i++) {
+      history += messages[i].user + ": " + messages[i].text + "\n";
+    }
+
+    history += characterInfo.name + ":";
+
+    console.log(history);
+    return history;
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      const firstMessage = await callGPT3(
+        context + "\n" + characterInfo.name + ":"
+      );
+      setMessages([
+        {
+          user: characterInfo.name,
+          text: firstMessage,
+        },
+      ]);
+    };
+
+    init();
+  }, []);
+
   return (
     <div
       style={{
         margin: "auto",
+        width: "1000px",
         padding: "80px",
       }}
-      className="flex flex-col h-screen gap-8"
+      className="flex flex-col h-screen gap-10"
     >
       <div className="flex flex-col gap-4">
         <img
-          src="https://media.istockphoto.com/id/1170061515/vector/funny-cartoon-monster-face-vector-halloween-monster-square-avatar.jpg?s=170667a&w=0&k=20&c=_gHVYItZYrriusEraKlORqU_kYoefNy_Ah6QrGAbgxE="
+          src={characterInfo.img_url}
           style={{
-            width: "200px",
-            height: "200px",
+            width: "150px",
+            height: "150px",
             alignSelf: "center",
-            borderRadius: "9999px",
+            borderRadius: "20px",
           }}
         />
-        <div className="font-bold text-3xl text-center">Horatio</div>
+        <div className="font-bold text-3xl text-center">
+          {characterInfo.name}
+        </div>
       </div>
-      <div className="flex-1 flex flex-col gap-2 rounded-lg bg-stone-900 p-8">
+      <div className="flex-1 flex flex-col gap-4 rounded-lg bg-stone-900 p-8 h-96 overflow-scroll">
         {messages.map((message) => {
           return (
             <div
               className={`text-white ${
                 message.user === "You"
                   ? "bg-blue-500 self-end"
-                  : "bg-stone-500 self-start"
-              } p-2 rounded-lg`}
+                  : "bg-stone-700 self-start"
+              } text-sm w-96 p-3 rounded-lg`}
             >
               {message.text}
             </div>
           );
         })}
       </div>
-      <Input />
+      <Input
+        value={currentMessage}
+        onChange={(e) => {
+          setCurrentMessage(e.target.value);
+        }}
+        onPressEnter={async () => {
+          const newMessage = {
+            user: "You",
+            text: currentMessage,
+          };
+          setMessages([...messages, newMessage]);
+          setCurrentMessage("");
+          const context = composePrompt([...messages, newMessage]);
+          const response = await callGPT3(context);
+          setMessages([
+            ...messages,
+            newMessage,
+            {
+              user: characterInfo.name,
+              text: response,
+            },
+          ]);
+        }}
+      />
+      <Button
+        className="self-end"
+        type="dashed"
+        onClick={() => {
+          nextPage();
+        }}
+      >
+        Next
+      </Button>
     </div>
   );
 };

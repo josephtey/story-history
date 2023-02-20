@@ -1,5 +1,5 @@
 const { Configuration, OpenAIApi } = require("openai");
-const secretKey = "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";
+const secretKey = "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";
 
 export async function callGPT3(myPrompt) {
   const configuration = new Configuration({

@@ -50,7 +50,7 @@ const Stories = (props) => {
                 style={{ width: 300 }}
               >
                 <div>
-                  <b>Story: </b>
+                  <b>Setting: </b>
                   {story.metaData.setting}
                 </div>
                 <div>

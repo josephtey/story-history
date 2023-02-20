@@ -83,7 +83,7 @@ const GameScreen = (props) => {
                         props.history.push(
                           `/stories/${id}/${chapter}/${
                             parseInt(segment) + 1
-                          }/regular`
+                          }/normal`
                         );
                       }
                     }
@@ -96,7 +96,13 @@ const GameScreen = (props) => {
           </div>
         ) : type === "chat" ? (
           <Conversation
+            characterInfo={story.characters[parseInt(chapter) - 1]}
             storySoFar={story.chapters.slice(0, parseInt(chapter))}
+            nextPage={() => {
+              props.history.push(
+                `/stories/${id}/${parseInt(chapter) + 1}/${1}/normal`
+              );
+            }}
           />
         ) : null}
       </>

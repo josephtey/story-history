@@ -40,15 +40,15 @@ const TeacherDashboard = (props) => {
     response:`;
   };
 
-  const buildCharacterMap = ({ story }) => {
-    return `Given a story, create five characters who's knowledge is limited to everything that has happened in the story. You will be speaking to the reader of the story, and answering any questions they have. The format for the name should be, "Name of the character". The format for the character description should be as follows, "You are <character name>, you are from... " Capture their name, where they are from, a brief background about their life, and what they are feeling right now. Each character should represent different demographics. Create a prompt description for this character that will be used to generate an image with DALLE. The prompt should describe how they look, dress, and the setting of the conversation. The format for the prompt description should be as follows, "<prompt description> by Thomas Cole, Breath-taking digital painting with placid colours, amazing art, artstation 3, cottagecore"
+  const buildCharacterMap = (story, values) => {
+    return `This is the background of the story: ${JSON.stringify(values)}
+
+    This is the story so far: ${JSON.stringify(story)}
+
+    Given this story, create five characters who's knowledge is limited to everything that has happened in the story. You will be speaking to the reader of the story, and answering any questions they have. The format for the name should be, "Name of the character". The format for the character description should be as follows, "You are <character name>, you are from... " Capture their name, where they are from, a brief background about their life, and what they are feeling right now. Each character should represent different demographics. Create a prompt description for this character that will be used to generate an image with DALLE. The prompt should describe how they look, dress, and the setting of the conversation. The format for the prompt description should be as follows, "<prompt description> by Thomas Cole, Breath-taking digital painting with placid colours, amazing art, artstation 3, cottagecore"
 
     This should be the structure of your response:
-    
-    response:
     [{"name": "<character name>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "introduction": "<character introduction>", "description": "<prompt description>"}]
-    
-    This is the story so far: ${story}
     
     response:`;
   };
@@ -74,7 +74,8 @@ const TeacherDashboard = (props) => {
 
     // Character generation
     console.log("========GENERATING CHARACTERS========");
-    const characterContext = buildCharacterMap(cleaned_story);
+    const characterContext = buildCharacterMap(chapters.slice(0, 2), values);
+    console.log(characterContext);
     const raw_characters = await callGPT3(characterContext);
     console.log(raw_characters);
     let cleaned_characters = "";
