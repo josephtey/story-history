@@ -40,13 +40,14 @@ const GameScreen = (props) => {
     story && (
       <div className="flex flex-col justify-between w-full overflow-hidden">
         <div className="pl-16 text-4xl font-bold bg-black h-36 flex content-center flex-wrap">
-          {story.chapters[parseInt(chapter) - 1].name}
+          Chapter {chapter} - {story.chapters[parseInt(chapter) - 1].name}
         </div>
         <img
           style={{
-            width: "512px",
+            width: "400px",
             alignSelf: "center",
           }}
+          className="rounded-xl"
           src={currentImg}
         />
         <div className="p-16 absolute bottom-0 bg-black flex-col flex w-full h-48">

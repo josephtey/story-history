@@ -3,11 +3,10 @@ import { Button, Form, Input } from "antd";
 import { useParams } from "react-router";
 import db from "../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import Stories from "./stories";
 
 const { TextArea } = Input;
 
-const TeacherStoryEditor = () => {
+const TeacherStoryEditor = (props) => {
   const [form] = Form.useForm();
   const [storyData, setStoryData] = useState();
   const { id } = useParams();
@@ -29,6 +28,7 @@ const TeacherStoryEditor = () => {
     for (let i = 0; i < storyData.chapters.length; i++) {
       let chapter = {
         name: values[`chapter-${i + 1}-name`],
+        img_url: values[`chapter-${i + 1}-image`],
         story: [],
       };
 
@@ -55,6 +55,15 @@ const TeacherStoryEditor = () => {
         }}
         className="py-24"
       >
+        <Button
+          type="dashed"
+          onClick={() => {
+            props.history.push("/");
+          }}
+          className="mb-8"
+        >
+          Back
+        </Button>
         <h1 className="font-bold text-3xl mb-4">Edit the AI-Generated Story</h1>
         <Form
           form={form}
@@ -62,22 +71,27 @@ const TeacherStoryEditor = () => {
           autoComplete="off"
           initialValues={{
             "chapter-1-name": storyData?.chapters?.[0].name,
+            "chapter-1-image": storyData?.chapters?.[0].img_url,
             "chapter-1-paragraph-1": storyData?.chapters?.[0].story[0],
             "chapter-1-paragraph-2": storyData?.chapters?.[0].story[1],
             "chapter-1-paragraph-3": storyData?.chapters?.[0].story[2],
             "chapter-2-name": storyData?.chapters?.[1].name,
+            "chapter-2-image": storyData?.chapters?.[1].img_url,
             "chapter-2-paragraph-1": storyData?.chapters?.[1].story[0],
             "chapter-2-paragraph-2": storyData?.chapters?.[1].story[1],
             "chapter-2-paragraph-3": storyData?.chapters?.[1].story[2],
             "chapter-3-name": storyData?.chapters?.[2].name,
+            "chapter-3-image": storyData?.chapters?.[2].img_url,
             "chapter-3-paragraph-1": storyData?.chapters?.[2].story[0],
             "chapter-3-paragraph-2": storyData?.chapters?.[2].story[1],
             "chapter-3-paragraph-3": storyData?.chapters?.[2].story[2],
             "chapter-4-name": storyData?.chapters?.[3].name,
+            "chapter-4-image": storyData?.chapters?.[3].img_url,
             "chapter-4-paragraph-1": storyData?.chapters?.[3].story[0],
             "chapter-4-paragraph-2": storyData?.chapters?.[3].story[1],
             "chapter-4-paragraph-3": storyData?.chapters?.[3].story[2],
             "chapter-5-name": storyData?.chapters?.[4].name,
+            "chapter-5-image": storyData?.chapters?.[4].img_url,
             "chapter-5-paragraph-1": storyData?.chapters?.[4].story[0],
             "chapter-5-paragraph-2": storyData?.chapters?.[4].story[1],
             "chapter-5-paragraph-3": storyData?.chapters?.[4].story[2],
@@ -89,6 +103,12 @@ const TeacherStoryEditor = () => {
                 <Form.Item
                   label={`Chapter ${chapter_i + 1}`}
                   name={`chapter-${chapter_i + 1}-name`}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={`Image link ${chapter_i + 1}`}
+                  name={`chapter-${chapter_i + 1}-image`}
                 >
                   <Input />
                 </Form.Item>
@@ -108,9 +128,19 @@ const TeacherStoryEditor = () => {
               </>
             );
           })}
-          <Button type="default" onClick={handleSubmit}>
-            Update!
-          </Button>
+          <div className="flex flex-row gap-2">
+            <Button type="default" onClick={handleSubmit}>
+              Update
+            </Button>
+            <Button
+              type="default"
+              onClick={() => {
+                props.history.push("/stories/" + id + "/1/1");
+              }}
+            >
+              View Story!
+            </Button>
+          </div>
         </Form>
       </div>
     )

@@ -77,7 +77,7 @@ const TeacherDashboard = (props) => {
 
     const newDoc = await addDoc(storiesRef, docData);
 
-    props.history.push("/stories/" + newDoc.id);
+    props.history.push("/teacher/" + newDoc.id);
   };
 
   return isGenerating ? (
