@@ -40,37 +40,75 @@ const TeacherDashboard = (props) => {
     response:`;
   };
 
+  const buildCharacterMap = ({ story }) => {
+    return `Given a story, create five characters who's knowledge is limited to everything that has happened in the story. You will be speaking to the reader of the story, and answering any questions they have. The format for the name should be, "Name of the character". The format for the character description should be as follows, "You are <character name>, you are from... " Capture their name, where they are from, a brief background about their life, and what they are feeling right now. Each character should represent different demographics. Create a prompt description for this character that will be used to generate an image with DALLE. The prompt should describe how they look, dress, and the setting of the conversation. The format for the prompt description should be as follows, "<prompt description> by Thomas Cole, Breath-taking digital painting with placid colours, amazing art, artstation 3, cottagecore"
+
+    This should be the structure of your response:
+    
+    response:
+    [{"name": "<character name>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "introduction": "<character introduction>", "description": "<prompt description>"}]
+    
+    This is the story so far: ${story}
+    
+    response:`;
+  };
+
   const handleSubmit = async () => {
     setIsGenerating(true);
 
     const values = form.getFieldsValue(true);
     const context = buildPrompt(values);
 
+    // Story generation
+    console.log("======GENERATING STORY=======");
     const story = await callGPT3(context);
     let chapters = [];
-
+    let cleaned_story = "";
     try {
-      const cleaned_story = story.replaceAll("\n", "").trim();
+      cleaned_story = story.replaceAll("\n", "").trim();
       console.log(cleaned_story);
       chapters = JSON.parse(cleaned_story);
     } catch (e) {
       console.error(e);
     }
 
-    console.log("BEFORE DALLE ", chapters);
+    // Character generation
+    console.log("========GENERATING CHARACTERS========");
+    const characterContext = buildCharacterMap(cleaned_story);
+    const raw_characters = await callGPT3(characterContext);
+    console.log(raw_characters);
+    let cleaned_characters = "";
+    let characters = [];
+    try {
+      cleaned_characters = raw_characters.replaceAll("\n", "").trim();
+      console.log(cleaned_characters);
+      characters = JSON.parse(cleaned_characters);
+      console.log(characters);
+    } catch (e) {
+      console.error(e);
+    }
 
+    console.log("========GENERATING DALL E IMAGES========");
     for (let i = 0; i < chapters.length; i++) {
       const imgPrompt = chapters[i].prompt;
       const imgUrl = await callDALLE(imgPrompt);
+      console.log(imgUrl);
 
       chapters[i].img_url = imgUrl;
     }
 
-    console.log("AFTER DALLE: ", chapters);
+    for (let i = 0; i < characters.length; i++) {
+      const imgPrompt = characters[i].description;
+      const imgUrl = await callDALLE(imgPrompt);
+      console.log(imgUrl);
+
+      characters[i].img_url = imgUrl;
+    }
 
     const docData = {
       metaData: values,
       chapters,
+      characters,
     };
 
     const storiesRef = collection(db, "stories");
