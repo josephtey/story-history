@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { Button, Form, Input } from "antd";
 import { callGPT3 } from "../gpt";
 import db from "../firebase";
 import { doc, addDoc, collection } from "firebase/firestore";
+import ReactLoading from "react-loading";
 const { TextArea } = Input;
 
 const TeacherDashboard = () => {
   const [form] = Form.useForm();
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const buildPrompt = ({ event, perspective, setting, learning }) => {
     return `You are the narrator of a story. Here is the framework for your story.
@@ -16,7 +19,7 @@ const TeacherDashboard = () => {
 
     Your story should have the following structure.
 
-    response:[{"name": "<chapter name>", "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]}]
+    response:[{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]}]
 
     prompt:   
     Your story is a second-person narrative about: 
@@ -35,6 +38,8 @@ const TeacherDashboard = () => {
   };
 
   const handleSubmit = async () => {
+    setIsGenerating(true);
+
     const values = form.getFieldsValue(true);
     const context = buildPrompt(values);
 
@@ -59,9 +64,16 @@ const TeacherDashboard = () => {
     const storiesRef = collection(db, "stories");
 
     await addDoc(storiesRef, docData);
+
+    setIsGenerating(false);
   };
 
-  return (
+  return isGenerating ? (
+    <div className="flex w-full justify-center content-center h-screen flex-wrap flex-col">
+      <h1 className="font-bold">Generating Story!</h1>
+      <ReactLoading type={"spin"} color={"white"} height={100} width={100} />
+    </div>
+  ) : (
     <div
       style={{
         margin: "0 auto",
@@ -70,6 +82,7 @@ const TeacherDashboard = () => {
       }}
       className="pt-24"
     >
+      <h1 className="font-bold text-3xl mb-4">Generate a Historical Story!</h1>
       <Form form={form} layout="vertical" autoComplete="off">
         <Form.Item
           label="What historical event would you like to teach?"
