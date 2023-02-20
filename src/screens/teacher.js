@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Form, Input } from "antd";
-import { callGPT3 } from "../gpt";
+import { callDALLE, callGPT3 } from "../gpt";
 import db from "../firebase";
 import { doc, addDoc, collection } from "firebase/firestore";
 import ReactLoading from "react-loading";
@@ -13,13 +13,16 @@ const TeacherDashboard = (props) => {
   const buildPrompt = ({ event, perspective, setting, learning }) => {
     return `You are the narrator of a story. Here is the framework for your story.
 
-    The story is split into 5 chapters, where each chapter has at least 3 paragraphs. Each chapter should have an appropriate title.
+    The story is split into 5 chapters, where each chapter has at least 3 paragraphs. 
+    
+    Each chapter should have an appropriate title.Each chapter should have one descriptive prompt that will be used to generate an image in Dalle-E. 
+    The prompt should have the format, "<prompt description> by Thomas Cole, Breath-taking digital painting with placid colours, amazing art, artstation 3, cottagecore"
 
     Your story must be historically accurate.
 
     Your story should have the following structure.
 
-    response:[{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter name>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]}]
+    response:[{"name": <chapter 1 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 2 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 3 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 4 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 5 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]}]
 
     prompt:   
     Your story is a second-person narrative about: 
@@ -44,7 +47,7 @@ const TeacherDashboard = (props) => {
     const context = buildPrompt(values);
 
     const story = await callGPT3(context);
-    let chapters = {};
+    let chapters = [];
 
     try {
       const cleaned_story = story.replaceAll("\n", "").trim();
@@ -54,7 +57,16 @@ const TeacherDashboard = (props) => {
       console.error(e);
     }
 
-    console.log(chapters);
+    console.log("BEFORE DALLE ", chapters);
+
+    for (let i = 0; i < chapters.length; i++) {
+      const imgPrompt = chapters[i].prompt;
+      const imgUrl = await callDALLE(imgPrompt);
+
+      chapters[i].img_url = imgUrl;
+    }
+
+    console.log("AFTER DALLE: ", chapters);
 
     const docData = {
       metaData: values,

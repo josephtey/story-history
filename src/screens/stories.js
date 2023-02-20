@@ -39,7 +39,7 @@ const Stories = (props) => {
         Back
       </Button>
       <h1 className="text-3xl font-bold mb-8">Stories</h1>
-      <div className="flex gap-4">
+      <div className="flex gap-4 flex-wrap">
         {stories.map((story) => {
           return (
             <Link to={"/stories/" + story.id + "/1/1"}>

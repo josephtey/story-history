@@ -8,6 +8,7 @@ import Typewriter from "typewriter-effect/dist/core";
 
 const GameScreen = (props) => {
   const [story, setStoryData] = useState();
+  const [currentImg, setCurrentImg] = useState("");
   const { id, chapter, segment } = useParams();
 
   useEffect(() => {
@@ -30,35 +31,48 @@ const GameScreen = (props) => {
       });
 
       typewriter.pauseFor(50).typeString(content).start();
+
+      setCurrentImg(story.chapters[parseInt(chapter) - 1].img_url);
     }
   }, [story, chapter, segment]);
 
   return (
     story && (
-      <div className="flex flex-col justify-between overflow-hidden">
+      <div className="flex flex-col justify-between w-full overflow-hidden">
         <div className="pl-16 text-4xl font-bold bg-black h-36 flex content-center flex-wrap">
-          Chapter {chapter}
+          {story.chapters[parseInt(chapter) - 1].name}
         </div>
         <img
-          className="object-cover"
           style={{
-            maxHeight: "600px",
+            width: "512px",
+            alignSelf: "center",
           }}
-          src="https://r2.stablediffusionweb.com/images/stable-diffusion-demo-2.webp"
+          src={currentImg}
         />
         <div className="p-16 absolute bottom-0 bg-black flex-col flex w-full h-48">
           <div id="content" className="w-full"></div>
           <Button
             className="self-end"
             onClick={() => {
-              if (segment === "3") {
-                props.history.push(
-                  `/stories/${id}/${parseInt(chapter) + 1}/${1}`
-                );
+              if (
+                chapter === "5" &&
+                parseInt(segment) ===
+                  story.chapters[parseInt(chapter) - 1].story.length
+              ) {
+                props.history.push("/stories");
               } else {
-                props.history.push(
-                  `/stories/${id}/${chapter}/${parseInt(segment) + 1}`
-                );
+                if (
+                  parseInt(segment) ===
+                  story.chapters[parseInt(chapter) - 1].story.length
+                ) {
+                  props.history.push(
+                    `/stories/${id}/${parseInt(chapter) + 1}/${1}`
+                  );
+                } else {
+                  props.history.push(
+                    `/stories/${id}/${chapter}/${parseInt(segment) + 1}`
+                  );
+                }
               }
             }}
           >
