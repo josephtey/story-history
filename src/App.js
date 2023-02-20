@@ -19,23 +19,15 @@ function App() {
       <div className="text-white h-screen">
         <Router>
           <Switch>
-            <Route exact path="/">
-              <Home />
-            </Route>
+            <Route exact path="/" component={Home} />
             <Route
               exact
               path="/stories/:id/:chapter/:segment"
               component={GameScreen}
             />
-            <Route exact path="/stories">
-              <Stories />
-            </Route>
-            <Route exact path="/teacher">
-              <TeacherDashboard />
-            </Route>
-            <Route path="/teacher/:id">
-              <TeacherStoryEditor />
-            </Route>
+            <Route exact path="/stories" component={Stories} />
+            <Route exact path="/teacher" component={TeacherDashboard} />
+            <Route path="/teacher/:id" component={TeacherStoryEditor} />
           </Switch>
         </Router>
       </div>

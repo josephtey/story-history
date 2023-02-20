@@ -1,10 +1,10 @@
 import react, { useEffect, useState } from "react";
 import db from "../firebase";
-import { collection, query, orderBy, getDocs } from "firebase/firestore";
+import { collection, query, getDocs } from "firebase/firestore";
 import { Link } from "react-router-dom";
-import { Card } from "antd";
+import { Card, Button } from "antd";
 
-const Stories = () => {
+const Stories = (props) => {
   const [stories, setStories] = useState([]);
 
   const fetchData = async () => {
@@ -29,6 +29,15 @@ const Stories = () => {
 
   return (
     <div className="p-24">
+      <Button
+        type="dashed"
+        onClick={() => {
+          props.history.push("/");
+        }}
+        className="mb-8"
+      >
+        Back
+      </Button>
       <h1 className="text-3xl font-bold mb-8">Stories</h1>
       <div className="flex gap-4">
         {stories.map((story) => {

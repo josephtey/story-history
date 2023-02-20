@@ -6,7 +6,7 @@ import { doc, addDoc, collection } from "firebase/firestore";
 import ReactLoading from "react-loading";
 const { TextArea } = Input;
 
-const TeacherDashboard = () => {
+const TeacherDashboard = (props) => {
   const [form] = Form.useForm();
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -63,9 +63,9 @@ const TeacherDashboard = () => {
 
     const storiesRef = collection(db, "stories");
 
-    await addDoc(storiesRef, docData);
+    const newDoc = await addDoc(storiesRef, docData);
 
-    setIsGenerating(false);
+    props.history.push("/stories/" + newDoc.id);
   };
 
   return isGenerating ? (
@@ -81,6 +81,15 @@ const TeacherDashboard = () => {
       }}
       className="pt-24"
     >
+      <Button
+        type="dashed"
+        onClick={() => {
+          props.history.push("/");
+        }}
+        className="mb-8"
+      >
+        Back
+      </Button>
       <h1 className="font-bold text-3xl mb-4">Generate a Historical Story!</h1>
       <Form form={form} layout="vertical" autoComplete="off">
         <Form.Item
