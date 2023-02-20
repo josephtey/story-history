@@ -22,7 +22,7 @@ function App() {
             <Route exact path="/" component={Home} />
             <Route
               exact
-              path="/stories/:id/:chapter/:segment"
+              path="/stories/:id/:chapter/:segment/:type"
               component={GameScreen}
             />
             <Route exact path="/stories" component={Stories} />

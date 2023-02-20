@@ -135,7 +135,7 @@ const TeacherStoryEditor = (props) => {
             <Button
               type="default"
               onClick={() => {
-                props.history.push("/stories/" + id + "/1/1");
+                props.history.push("/stories/" + id + "/1/1/normal");
               }}
             >
               View Story!

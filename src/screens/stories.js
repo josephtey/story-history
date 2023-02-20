@@ -42,7 +42,7 @@ const Stories = (props) => {
       <div className="flex gap-4 flex-wrap">
         {stories.map((story) => {
           return (
-            <Link to={"/stories/" + story.id + "/1/1"}>
+            <Link to={"/stories/" + story.id + "/1/1/normal"}>
               <Card
                 hoverable
                 size="medium"
