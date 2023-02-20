@@ -22,9 +22,11 @@ function App() {
             <Route exact path="/">
               <Home />
             </Route>
-            <Route exact path="/stories/:id">
-              <GameScreen />
-            </Route>
+            <Route
+              exact
+              path="/stories/:id/:chapter/:segment"
+              component={GameScreen}
+            />
             <Route exact path="/stories">
               <Stories />
             </Route>

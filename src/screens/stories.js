@@ -1,6 +1,7 @@
 import react, { useEffect, useState } from "react";
 import db from "../firebase";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
+import { Link } from "react-router-dom";
 import { Card } from "antd";
 
 const Stories = () => {
@@ -32,24 +33,23 @@ const Stories = () => {
       <div className="flex gap-4">
         {stories.map((story) => {
           return (
-            <Card
-              hoverable
-              onClick={() => {
-                window.location.href = "/stories/" + story.id;
-              }}
-              size="medium"
-              title={story.metaData.event}
-              style={{ width: 300 }}
-            >
-              <div>
-                <b>Story: </b>
-                {story.metaData.setting}
-              </div>
-              <div>
-                <b>Learning: </b>
-                {story.metaData.learning}
-              </div>
-            </Card>
+            <Link to={"/stories/" + story.id + "/1/1"}>
+              <Card
+                hoverable
+                size="medium"
+                title={story.metaData.event}
+                style={{ width: 300 }}
+              >
+                <div>
+                  <b>Story: </b>
+                  {story.metaData.setting}
+                </div>
+                <div>
+                  <b>Learning: </b>
+                  {story.metaData.learning}
+                </div>
+              </Card>
+            </Link>
           );
         })}
       </div>
