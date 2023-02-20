@@ -97,14 +97,6 @@ const TeacherStoryEditor = () => {
           "chapter-3-paragraph-1": storyData?.chapters?.[2].story[0],
           "chapter-3-paragraph-2": storyData?.chapters?.[2].story[1],
           "chapter-3-paragraph-3": storyData?.chapters?.[2].story[2],
-          "chapter-4-name": storyData?.chapters?.[3].name,
-          "chapter-4-paragraph-1": storyData?.chapters?.[3].story[0],
-          "chapter-4-paragraph-2": storyData?.chapters?.[3].story[1],
-          "chapter-4-paragraph-3": storyData?.chapters?.[3].story[2],
-          "chapter-5-name": storyData?.chapters?.[4].name,
-          "chapter-5-paragraph-1": storyData?.chapters?.[4].story[0],
-          "chapter-5-paragraph-2": storyData?.chapters?.[4].story[1],
-          "chapter-5-paragraph-3": storyData?.chapters?.[4].story[2],
         }}
       >
         <Form.Item label="Chapter 1 Name" name="chapter-1-name">

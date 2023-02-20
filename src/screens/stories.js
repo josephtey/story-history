@@ -28,29 +28,31 @@ const Stories = () => {
 
   return (
     <div className="p-24">
-      <h1 className="text-3xl font-bold">Stories</h1> <br />
-      {stories.map((story) => {
-        return (
-          <Card
-            hoverable
-            onClick={() => {
-              window.location.href = "/stories/" + story.id;
-            }}
-            size="medium"
-            title={story.metaData.event}
-            style={{ width: 300 }}
-          >
-            <div>
-              <b>Story: </b>
-              {story.metaData.setting}
-            </div>
-            <div>
-              <b>Learning: </b>
-              {story.metaData.learning}
-            </div>
-          </Card>
-        );
-      })}
+      <h1 className="text-3xl font-bold mb-8">Stories</h1>
+      <div className="flex gap-4">
+        {stories.map((story) => {
+          return (
+            <Card
+              hoverable
+              onClick={() => {
+                window.location.href = "/stories/" + story.id;
+              }}
+              size="medium"
+              title={story.metaData.event}
+              style={{ width: 300 }}
+            >
+              <div>
+                <b>Story: </b>
+                {story.metaData.setting}
+              </div>
+              <div>
+                <b>Learning: </b>
+                {story.metaData.learning}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 };

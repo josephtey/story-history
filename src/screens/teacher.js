@@ -70,7 +70,6 @@ const TeacherDashboard = () => {
 
   return isGenerating ? (
     <div className="flex w-full justify-center content-center h-screen flex-wrap flex-col">
-      <h1 className="font-bold">Generating Story!</h1>
       <ReactLoading type={"spin"} color={"white"} height={100} width={100} />
     </div>
   ) : (

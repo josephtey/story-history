@@ -22,6 +22,9 @@ function App() {
             <Route exact path="/">
               <Home />
             </Route>
+            <Route exact path="/stories/:id">
+              <GameScreen />
+            </Route>
             <Route exact path="/stories">
               <Stories />
             </Route>
@@ -30,9 +33,6 @@ function App() {
             </Route>
             <Route path="/teacher/:id">
               <TeacherStoryEditor />
-            </Route>
-            <Route path="/game/:id">
-              <GameScreen />
             </Route>
           </Switch>
         </Router>
