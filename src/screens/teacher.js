@@ -105,7 +105,6 @@ const TeacherDashboard = (props) => {
 
       characters[i].img_url = imgUrl;
     }
-
     const docData = {
       metaData: values,
       chapters,
