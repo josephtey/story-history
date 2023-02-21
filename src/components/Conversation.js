@@ -61,8 +61,9 @@ const Conversation = ({ characterInfo, storySoFar, nextPage }) => {
             borderRadius: "20px",
           }}
         />
-        <div className="font-bold text-3xl text-center">
-          {characterInfo.name}
+        <div className="flex flex-col gap-2 text-center">
+          <div className="font-bold text-3xl">{characterInfo.name}</div>
+          {characterInfo.role ? <p>{characterInfo.role}</p> : null}
         </div>
       </div>
       <div className="flex-1 flex flex-col gap-4 rounded-lg bg-stone-900 p-8 h-96 overflow-scroll">
