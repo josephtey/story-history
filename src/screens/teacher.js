@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Form, Input } from "antd";
 import { callDALLE, callGPT3 } from "../gpt";
-import db from "../firebase";
+import { db } from "../firebase";
 import { doc, addDoc, collection } from "firebase/firestore";
 import ReactLoading from "react-loading";
 const { TextArea } = Input;
@@ -61,76 +61,71 @@ const TeacherDashboard = (props) => {
     const values = form.getFieldsValue(true);
     const context = buildPrompt(values);
 
-    if (isGenerating) {
-      // Story generation
+    // Story generation
+    try {
+      console.log("======GENERATING STORY=======");
+      setGeneratingState("Generating story...");
+      const story = await callGPT3(context);
+      let chapters = [];
+      let cleaned_story = "";
       try {
-        console.log("======GENERATING STORY=======");
-        setGeneratingState("Generating story...");
-        const story = await callGPT3(context);
-        let chapters = [];
-        let cleaned_story = "";
-        try {
-          cleaned_story = story.replaceAll("\n", "").trim();
-          console.log(cleaned_story);
-          chapters = JSON.parse(cleaned_story);
-        } catch (e) {
-          console.error(e);
-        }
-
-        // Character generation
-        console.log("========GENERATING CHARACTERS========");
-        setGeneratingState("Generating characters...");
-        const characterContext = buildCharacterMap(
-          chapters.slice(0, 2),
-          values
-        );
-        console.log(characterContext);
-        const raw_characters = await callGPT3(characterContext);
-        console.log(raw_characters);
-        let cleaned_characters = "";
-        let characters = [];
-        try {
-          cleaned_characters = raw_characters.replaceAll("\n", "").trim();
-          console.log(cleaned_characters);
-          characters = JSON.parse(cleaned_characters);
-          console.log(characters);
-        } catch (e) {
-          console.error(e);
-        }
-
-        console.log("========GENERATING DALL E IMAGES========");
-        setGeneratingState("Generating images for story...");
-        for (let i = 0; i < chapters.length; i++) {
-          const imgPrompt = chapters[i].prompt;
-          const imgUrl = await callDALLE(imgPrompt);
-          console.log(imgUrl);
-
-          chapters[i].img_url = imgUrl;
-        }
-
-        setGeneratingState("Generating images for characters...");
-        for (let i = 0; i < characters.length; i++) {
-          const imgPrompt = characters[i].description;
-          const imgUrl = await callDALLE(imgPrompt);
-          console.log(imgUrl);
-
-          characters[i].img_url = imgUrl;
-        }
-        setGeneratingState("Nearly there!");
-        const docData = {
-          metaData: values,
-          chapters,
-          characters,
-        };
-
-        const storiesRef = collection(db, "stories");
-
-        const newDoc = await addDoc(storiesRef, docData);
-
-        props.history.push("/teacher/" + newDoc.id);
+        cleaned_story = story.replaceAll("\n", "").trim();
+        console.log(cleaned_story);
+        chapters = JSON.parse(cleaned_story);
       } catch (e) {
-        setError("Something went wrong :(");
+        console.error(e);
       }
+
+      // Character generation
+      console.log("========GENERATING CHARACTERS========");
+      setGeneratingState("Generating characters...");
+      const characterContext = buildCharacterMap(chapters.slice(0, 2), values);
+      console.log(characterContext);
+      const raw_characters = await callGPT3(characterContext);
+      console.log(raw_characters);
+      let cleaned_characters = "";
+      let characters = [];
+      try {
+        cleaned_characters = raw_characters.replaceAll("\n", "").trim();
+        console.log(cleaned_characters);
+        characters = JSON.parse(cleaned_characters);
+        console.log(characters);
+      } catch (e) {
+        console.error(e);
+      }
+
+      console.log("========GENERATING DALL E IMAGES========");
+      setGeneratingState("Generating images for story...");
+      for (let i = 0; i < chapters.length; i++) {
+        const imgPrompt = chapters[i].prompt;
+        const imgUrl = await callDALLE(imgPrompt);
+        console.log(imgUrl);
+
+        chapters[i].img_url = imgUrl;
+      }
+
+      setGeneratingState("Generating images for characters...");
+      for (let i = 0; i < characters.length; i++) {
+        const imgPrompt = characters[i].description;
+        const imgUrl = await callDALLE(imgPrompt);
+        console.log(imgUrl);
+
+        characters[i].img_url = imgUrl;
+      }
+      setGeneratingState("Nearly there!");
+      const docData = {
+        metaData: values,
+        chapters,
+        characters,
+      };
+
+      const storiesRef = collection(db, "stories");
+
+      const newDoc = await addDoc(storiesRef, docData);
+
+      props.history.push("/teacher/" + newDoc.id);
+    } catch (e) {
+      setError("Something went wrong :(");
     }
   };
 

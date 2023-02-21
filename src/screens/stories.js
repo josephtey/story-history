@@ -1,5 +1,5 @@
 import react, { useEffect, useState } from "react";
-import db from "../firebase";
+import { db } from "../firebase";
 import { collection, query, getDocs } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import { Card, Button } from "antd";

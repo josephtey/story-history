@@ -1,7 +1,7 @@
 import react, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { collection } from "firebase/firestore";
-import db from "../firebase";
+import { db } from "../firebase";
 import { getDoc, doc } from "firebase/firestore";
 import { Button } from "antd";
 import Typewriter from "typewriter-effect/dist/core";
