@@ -6,11 +6,11 @@ const Conversation = ({ characterInfo, storySoFar, nextPage }) => {
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
 
-  const context = `You are going to be engaging in conversation with a reader. Begin the conversation by introducing your name, a brief background about your life, and an introductory question to your reader. The conversation should last a maximum of 10 exchanges, or until your reader says good bye to you, after which, you will end the conversation, and bid the reader farewell. 
+  const context = `You are going to be engaging in conversation with a reader. Begin the conversation by introducing your name, a brief background about your life, and an introductory question to your reader. 
 
   This is who you are: ${characterInfo.introduction}
   
-  This is the story you are a part of:  ${storySoFar}
+  This is the story you are a part of:  ${JSON.stringify(storySoFar)}
   `;
 
   const composePrompt = (messages) => {
