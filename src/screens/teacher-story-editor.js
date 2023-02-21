@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Card } from "antd";
 import { useParams } from "react-router";
 import { db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -50,7 +50,7 @@ const TeacherStoryEditor = (props) => {
       <div
         style={{
           margin: "10px auto",
-          width: "500px",
+          width: "700px",
           color: "white !important",
         }}
         className="py-24"
@@ -64,7 +64,24 @@ const TeacherStoryEditor = (props) => {
         >
           Back
         </Button>
-        <h1 className="font-bold text-3xl mb-4">Edit the AI-Generated Story</h1>
+        <h1 className="font-bold text-3xl mb-4">Proofread Your Story</h1>
+        <Card className="my-8">
+          Our AI isn't perfect, and we admit, this is an{" "}
+          <b>experimental project</b>. Proof-read the AI-generated story, and
+          make any changes you'd like!
+          <br />
+          <br />
+          If you're happy with it, press the button below to{" "}
+          <b>preview your interactive, story-based game</b>. <br />
+          <br />
+          <Button
+            onClick={() => {
+              props.history.push("/stories/" + id + "/1/1/normal");
+            }}
+          >
+            Preview Story
+          </Button>
+        </Card>
         <Form
           form={form}
           layout="vertical"
@@ -106,8 +123,13 @@ const TeacherStoryEditor = (props) => {
                 >
                   <Input />
                 </Form.Item>
+                <img
+                  className="rounded-lg self-center mb-4"
+                  width={256}
+                  src={storyData?.chapters?.[chapter_i].img_url}
+                />
                 <Form.Item
-                  label={`Image link ${chapter_i + 1}`}
+                  label={`Chapter Image`}
                   name={`chapter-${chapter_i + 1}-image`}
                 >
                   <Input />

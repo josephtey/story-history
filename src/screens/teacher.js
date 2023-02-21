@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Card } from "antd";
 import { callDALLE, callGPT3 } from "../gpt";
 import { db } from "../firebase";
 import { doc, addDoc, collection } from "firebase/firestore";
@@ -64,7 +64,12 @@ const TeacherDashboard = (props) => {
     // Story generation
     try {
       console.log("======GENERATING STORY=======");
-      setGeneratingState("Generating story...");
+      setGeneratingState({
+        time: "3 minutes left",
+        state: "Generating story...",
+        description:
+          "A story filled with emotion, experience, and beauty - one that will captivate and draw your reader in!",
+      });
       const story = await callGPT3(context);
       let chapters = [];
       let cleaned_story = "";
@@ -78,7 +83,12 @@ const TeacherDashboard = (props) => {
 
       // Character generation
       console.log("========GENERATING CHARACTERS========");
-      setGeneratingState("Generating characters...");
+      setGeneratingState({
+        time: "1.5 minutes left",
+        state: "Generating characters...",
+        description:
+          "Imagine your student is able to interact with a diverse range of characters that lived during this historical period...",
+      });
       const characterContext = buildCharacterMap(chapters.slice(0, 2), values);
       console.log(characterContext);
       const raw_characters = await callGPT3(characterContext);
@@ -95,7 +105,12 @@ const TeacherDashboard = (props) => {
       }
 
       console.log("========GENERATING DALL E IMAGES========");
-      setGeneratingState("Generating images for story...");
+      setGeneratingState({
+        time: "1 minute left",
+        state: "Generating images for your story...",
+        description:
+          "A beautiful collection of images that will give life to your story book!",
+      });
       for (let i = 0; i < chapters.length; i++) {
         const imgPrompt = chapters[i].prompt;
         const imgUrl = await callDALLE(imgPrompt);
@@ -104,7 +119,11 @@ const TeacherDashboard = (props) => {
         chapters[i].img_url = imgUrl;
       }
 
-      setGeneratingState("Generating images for characters...");
+      setGeneratingState({
+        time: "30 seconds left",
+        state: "Generating images for your characters...",
+        description: "Turning personalities into a visual depiction.",
+      });
       for (let i = 0; i < characters.length; i++) {
         const imgPrompt = characters[i].description;
         const imgUrl = await callDALLE(imgPrompt);
@@ -145,15 +164,25 @@ const TeacherDashboard = (props) => {
       </Button>
     </div>
   ) : isGenerating ? (
-    <div className="flex w-full justify-center content-center h-screen flex-wrap flex-col text-center gap-4">
-      <ReactLoading
-        className="self-center"
-        type={"spin"}
-        color={"white"}
-        height={100}
-        width={100}
-      />
-      <h1 className="text-center">{generatingState}</h1>
+    <div className="flex w-full justify-center content-center h-screen flex-wrap flex-col gap-4">
+      <Card
+        className="mt-4 self-center"
+        title={
+          <div className="flex flex-row gap-2">
+            <ReactLoading
+              className="self-center"
+              type={"spin"}
+              color={"white"}
+              height={15}
+              width={15}
+            />
+            {generatingState?.state}
+          </div>
+        }
+        extra={generatingState?.time}
+      >
+        <p>{generatingState?.description}</p>
+      </Card>
       {/* <Button
         type="dashed"
         className="self-center"
@@ -184,7 +213,7 @@ const TeacherDashboard = (props) => {
       >
         Back
       </Button>
-      <h1 className="font-bold text-3xl mb-4">Generate a Historical Story!</h1>
+      <h1 className="font-bold text-3xl mb-4">Create Your World</h1>
       <Form form={form} layout="vertical" autoComplete="off">
         <Form.Item
           label="What historical event would you like to teach?"
