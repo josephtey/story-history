@@ -13,33 +13,25 @@ const TeacherDashboard = (props) => {
   const [error, setError] = useState(null);
 
   const buildPrompt = ({ event, perspective, setting, learning }) => {
-    return `You are the narrator of a story. Here is the framework for your story.
-
-    The story is split into 5 chapters, where each chapter has at least 3 paragraphs. 
+    return `Generate a story that fits the following criteria:
+    1. The story must have 5 distinct chapters. 
+    2. The story must be historically accurate.
+    3. The story is a second-person narrative. 
+    4. The story is about: ${event}
+    5. The story should teach people about: ${learning}
+    6. The reader should take on the persona of: ${perspective}
+    7. The story is set in: ${setting}
+    7. Start the story by introducing who the reader is.
     
-    Each chapter should have an appropriate title.Each chapter should have one descriptive prompt that will be used to generate an image in Dalle-E. 
-    The prompt should have the format, "<prompt description> by Thomas Cole, Breath-taking digital painting with placid colours, amazing art, artstation 3, cottagecore"
-
-    Your story must be historically accurate.
-
-    Your story should have the following structure.
-
-    response:[{"name": <chapter 1 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 2 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 3 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 4 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 5 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]}]
-
-    prompt:   
-    Your story is a second-person narrative about: 
-    ${event}
-
-    Your reader is taking on the following the persona:
-    ${perspective}
-
-    By the end of your story, your reader should learn about: 
-    ${learning}
-
-    Your story is set in: 
-    ${setting}
+    For each of the 5 chapters:
+    1. Each chapter should have an appropriate title.
+    2. Each chapter should have at least 3 paragraphs. 
+    2. Each chapter should have one descriptive prompt that will be used to generate an image in Dalle-E. The prompt should have the format, "<prompt description> by Thomas Cole, Breath-taking digital painting with placid colours, amazing art, artstation 3, cottagecore"
     
-    response:`;
+    story:
+    [{"name": <chapter 1 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 2 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 3 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 4 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 5 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]}]
+    
+    story:`;
   };
 
   const buildCharacterMap = (story, values) => {
@@ -49,8 +41,7 @@ const TeacherDashboard = (props) => {
 
     Given this story, create five characters who's knowledge is limited to everything that has happened in the story. You will be speaking to the reader of the story, and answering any questions they have. The format for the name should be, "Name of the character". The format for the character description should be as follows, "You are <character name>, you are from... " Capture their name, their role, where they are from, a brief background about their life, and what they are feeling right now. Each character should represent different demographics. Create a prompt description for this character that will be used to generate an image with DALLE. The prompt should describe how they look, dress, and the setting of the conversation. The format for the prompt description should be as follows, "<prompt description> by Thomas Cole, Breath-taking digital painting with placid colours, amazing art, artstation 3, cottagecore"
 
-    This should be the structure of your response:
-    [{"name": "<character name>", "role": "<character role>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "role": "<character role>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "role": "<character role>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "role": "<character role>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>","role": "<character role>", "introduction": "<character introduction>", "description": "<prompt description>"}]
+    response: [{"name": "<character name>", "role": "<character role>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "role": "<character role>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "role": "<character role>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>", "role": "<character role>", "introduction": "<character introduction>", "description": "<prompt description>"},{"name": "<character name>","role": "<character role>", "introduction": "<character introduction>", "description": "<prompt description>"}]
     
     response:`;
   };
