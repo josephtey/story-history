@@ -12,26 +12,28 @@ const TeacherDashboard = (props) => {
   const [generatingState, setGeneratingState] = useState("");
   const [error, setError] = useState(null);
 
-  const buildPrompt = ({ event, perspective, setting, learning }) => {
-    return `Generate a story that fits the following criteria:
+  const buildPrompt = ({ event, summary, perspective, setting, learning }) => {
+    return `Transform the following summary of the ${event} into an immersive, dramatic story with a plotline:  
+    "${summary}"
+    
+    The story should fit the following criteria:
     1. The story must have 5 distinct chapters. 
-    2. The story must be historically accurate.
+    2. The story must be historically accurate and consistent with the above summary. 
     3. The story is a second-person narrative. 
     4. The story is about: ${event}
     5. The story should teach people about: ${learning}
     6. The reader should take on the persona of: ${perspective}
-    7. The story is set in: ${setting}
-    7. Start the story by introducing who the reader is.
-    
+    7. The story is set in: ${setting} 
+    8. Start the story by introducing who the reader is.
+        
     For each of the 5 chapters:
     1. Each chapter should have an appropriate title.
     2. Each chapter should have at least 3 paragraphs. 
-    2. Each chapter should have one descriptive prompt that will be used to generate an image in Dalle-E. The prompt should have the format, "<prompt description> by Thomas Cole, Breath-taking digital painting with placid colours, amazing art, artstation 3, cottagecore"
-    
-    story:
-    [{"name": <chapter 1 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 2 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 3 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 4 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 5 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]}]
-    
-    story:`;
+    3. Each chapter should have one descriptive prompt that will be used to generate an image in Dalle-E. The prompt should have the format, "<prompt description> by Thomas Cole, Breath-taking digital painting with placid colours, amazing art, artstation 3, cottagecore"
+        
+    story: [{"name": <chapter 1 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 2 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 3 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 4 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]},{"name": <chapter 5 name>, "prompt": <prompt description>, "story": [<paragraph 1>, <paragraph 2>, <paragraph 3>]}]
+        
+    story: `;
   };
 
   const buildCharacterMap = (story, values) => {
@@ -204,13 +206,19 @@ const TeacherDashboard = (props) => {
       >
         Back
       </Button>
-      <h1 className="font-bold text-3xl mb-4">Create Your World</h1>
+      <h1 className="font-bold text-3xl mb-4">Create Your Story</h1>
       <Form form={form} layout="vertical" autoComplete="off">
         <Form.Item
           label="What historical event would you like to teach?"
           name="event"
         >
           <Input />
+        </Form.Item>
+        <Form.Item
+          label="Paste a historically accurate summary of this event (use Wikipedia!)"
+          name="summary"
+        >
+          <TextArea maxLength={1200} showCount />
         </Form.Item>
 
         <Form.Item

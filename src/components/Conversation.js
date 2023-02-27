@@ -1,16 +1,19 @@
-import react, { useState, useEffect } from "react";
+import react, { useState, useEffect, useRef } from "react";
 import { Input, Button } from "antd";
 import { callGPT3 } from "../gpt";
 
 const Conversation = ({ characterInfo, storySoFar, nextPage }) => {
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
+  const MessagesEndRef = useRef(null);
 
   const context = `You are going to be engaging in conversation with a reader. Begin the conversation by introducing your name, a brief background about your life, and an introductory question to your reader. 
 
   This is who you are: ${characterInfo.introduction}
   
-  This is the story you are a part of:  ${JSON.stringify(storySoFar)}
+  This is the story you are a part of:  ${JSON.stringify(
+    storySoFar[storySoFar.length - 1].story
+  )}
   `;
 
   const composePrompt = (messages) => {
@@ -26,8 +29,36 @@ const Conversation = ({ characterInfo, storySoFar, nextPage }) => {
     return history;
   };
 
+  const sendMessage = async () => {
+    const newMessage = {
+      user: "You",
+      text: currentMessage,
+    };
+    setMessages([...messages, newMessage]);
+    setCurrentMessage("");
+    const context = composePrompt([...messages, newMessage]);
+    const response = await callGPT3(context);
+    setMessages([
+      ...messages,
+      newMessage,
+      {
+        user: characterInfo.name,
+        text: response,
+      },
+    ]);
+  };
+
+  const scrollToBottom = () => {
+    MessagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   useEffect(() => {
     const init = async () => {
+      console.log(context + "\n" + characterInfo.name + ":");
       const firstMessage = await callGPT3(
         context + "\n" + characterInfo.name + ":"
       );
@@ -80,31 +111,27 @@ const Conversation = ({ characterInfo, storySoFar, nextPage }) => {
             </div>
           );
         })}
+        <div ref={MessagesEndRef} />
       </div>
-      <Input
-        value={currentMessage}
-        onChange={(e) => {
-          setCurrentMessage(e.target.value);
-        }}
-        onPressEnter={async () => {
-          const newMessage = {
-            user: "You",
-            text: currentMessage,
-          };
-          setMessages([...messages, newMessage]);
-          setCurrentMessage("");
-          const context = composePrompt([...messages, newMessage]);
-          const response = await callGPT3(context);
-          setMessages([
-            ...messages,
-            newMessage,
-            {
-              user: characterInfo.name,
-              text: response,
-            },
-          ]);
-        }}
-      />
+      <div className="flex flex-row justify-between gap-2">
+        <Input
+          value={currentMessage}
+          onChange={(e) => {
+            setCurrentMessage(e.target.value);
+          }}
+          onPressEnter={async () => {
+            sendMessage();
+          }}
+        />
+        <Button
+          type="default"
+          onClick={() => {
+            sendMessage();
+          }}
+        >
+          Send
+        </Button>
+      </div>
       <Button
         className="self-end"
         type="dashed"
@@ -112,7 +139,7 @@ const Conversation = ({ characterInfo, storySoFar, nextPage }) => {
           nextPage();
         }}
       >
-        Next
+        Next Chapter
       </Button>
     </div>
   );
