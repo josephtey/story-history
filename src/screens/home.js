@@ -3,10 +3,16 @@ import { Card } from "antd";
 const Home = (props) => {
   return (
     <div className="flex w-full justify-center content-center h-screen flex-wrap flex-col">
-      <div className="text-5xl font-bold text-center">
-        Create Immersive Educational Stories
+      <div
+        className="text-6xl font-bold text-center"
+        style={{
+          lineHeight: "70px",
+        }}
+      >
+        Create Immersive <br />
+        Educational Stories
       </div>
-      <Card className="self-center mt-12 mb-24 text-center">
+      <Card className="self-center mt-20 mb-24 text-center">
         We give you the <b>power</b> to create your own imaginative, educational
         stories. <br />
         <br />
