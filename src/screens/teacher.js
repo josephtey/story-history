@@ -212,31 +212,35 @@ const TeacherDashboard = (props) => {
           label="What historical event would you like to teach?"
           name="event"
         >
-          <Input />
+          <Input placeholder="e.g. The Attack on Pearl Harbour" />
         </Form.Item>
         <Form.Item
           label="Paste a historically accurate summary of this event (use Wikipedia!)"
           name="summary"
         >
-          <TextArea maxLength={1200} showCount />
+          <TextArea
+            maxLength={1000}
+            showCount
+            placeholder="e.g. The attack commenced at 7:48 a.m. Hawaiian Time (6:18 p.m. GMT). The base was attacked by 353 Imperial Japanese aircraft (including fighters, level and dive bombers, and torpedo bombers) in two waves, launched from six aircraft carriers. Of the eight U.S. Navy battleships present, all were damaged, with four sunk. All but USS Arizona were later raised, and six were returned to service and went on to fight in the war. The Japanese also sank or damaged three cruisers, three destroyers, an anti-aircraft training ship, and one minelayer. More than 180 US aircraft were destroyed. 2,403 Americans were killed and 1,178 others were wounded. Important base installations such as the power station, dry dock, shipyard, maintenance, and fuel and torpedo storage facilities, as well as the submarine piers and headquarters building (also home of the intelligence section) were not attacked. Japanese losses were light: 29 aircraft and five midget submarines lost, and 64 servicemen killed. Kazuo Sakamaki, the commanding officer of one of the submarines, was captured."
+          />
         </Form.Item>
 
         <Form.Item
           label="What perspective should your student take on?"
           name="perspective"
         >
-          <Input />
+          <Input placeholder="e.g. U.S. Soldier" />
         </Form.Item>
 
         <Form.Item label="Your story is set in..." name="setting">
-          <Input />
+          <Input placeholder="e.g. Pearl Harbour" />
         </Form.Item>
 
         <Form.Item
           label="At the end of the story, what do you want your students to learn?"
           name="learning"
         >
-          <Input />
+          <Input placeholder="e.g. The Tragedies of War" />
         </Form.Item>
         {/* 
         <Form.Item
