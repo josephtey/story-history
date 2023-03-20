@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Form, Input, Card } from "antd";
-import { callDALLE, callGPT3 } from "../gpt";
+import { callDALLE, callGPT4 } from "../gpt";
 import { db } from "../firebase";
 import { doc, addDoc, collection } from "firebase/firestore";
 import ReactLoading from "react-loading";
@@ -53,7 +53,7 @@ const TeacherDashboard = (props) => {
 
     const values = form.getFieldsValue(true);
     const context = buildPrompt(values);
-
+    console.log(context);
     // Story generation
     try {
       console.log("======GENERATING STORY=======");
@@ -63,7 +63,9 @@ const TeacherDashboard = (props) => {
         description:
           "A story filled with emotion, experience, and beauty - one that will captivate and draw your reader in!",
       });
-      const story = await callGPT3(context);
+
+      const story = await callGPT4(context);
+      console.log("raw generated story: ", story);
       let chapters = [];
       let cleaned_story = "";
       try {
@@ -84,7 +86,7 @@ const TeacherDashboard = (props) => {
       });
       const characterContext = buildCharacterMap(chapters.slice(0, 2), values);
       console.log(characterContext);
-      const raw_characters = await callGPT3(characterContext);
+      const raw_characters = await callGPT4(characterContext);
       console.log(raw_characters);
       let cleaned_characters = "";
       let characters = [];
@@ -195,7 +197,7 @@ const TeacherDashboard = (props) => {
         width: "500px",
         color: "white !important",
       }}
-      className="pt-24"
+      className="py-24"
     >
       <Button
         type="dashed"
@@ -251,7 +253,15 @@ const TeacherDashboard = (props) => {
         </Form.Item> */}
 
         <Form.Item>
-          <Button type="default" htmlType="submit" onClick={handleSubmit}>
+          <Button
+            type="default"
+            htmlType="submit"
+            onClick={async () => {
+              // const result = await callGPT4("");
+              // console.log(result);
+              await handleSubmit();
+            }}
+          >
             Generate Story!
           </Button>
         </Form.Item>

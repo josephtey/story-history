@@ -1,6 +1,6 @@
 import react, { useState, useEffect, useRef } from "react";
 import { Input, Button } from "antd";
-import { callGPT3 } from "../gpt";
+import { callGPT4 } from "../gpt";
 
 const Conversation = ({ characterInfo, storySoFar, nextPage }) => {
   const [messages, setMessages] = useState([]);
@@ -37,7 +37,7 @@ const Conversation = ({ characterInfo, storySoFar, nextPage }) => {
     setMessages([...messages, newMessage]);
     setCurrentMessage("");
     const context = composePrompt([...messages, newMessage]);
-    const response = await callGPT3(context);
+    const response = await callGPT4(context);
     setMessages([
       ...messages,
       newMessage,
@@ -59,7 +59,7 @@ const Conversation = ({ characterInfo, storySoFar, nextPage }) => {
   useEffect(() => {
     const init = async () => {
       console.log(context + "\n" + characterInfo.name + ":");
-      const firstMessage = await callGPT3(
+      const firstMessage = await callGPT4(
         context + "\n" + characterInfo.name + ":"
       );
       setMessages([

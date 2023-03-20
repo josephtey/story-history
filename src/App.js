@@ -9,7 +9,7 @@ import Stories from "./screens/stories";
 
 function App() {
   const { darkAlgorithm } = theme;
-
+  
   return (
     <ConfigProvider
       theme={{
