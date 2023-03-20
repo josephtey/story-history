@@ -4,6 +4,11 @@ import { callDALLE, callGPT4 } from "../gpt";
 import { db } from "../firebase";
 import { doc, addDoc, collection } from "firebase/firestore";
 import ReactLoading from "react-loading";
+import { getFunctions, httpsCallable } from "firebase/functions";
+
+const functions = getFunctions();
+const callCustomFunction = httpsCallable(functions, "getFirebaseImageUrl");
+
 const { TextArea } = Input;
 
 const TeacherDashboard = (props) => {
@@ -53,7 +58,7 @@ const TeacherDashboard = (props) => {
 
     const values = form.getFieldsValue(true);
     const context = buildPrompt(values);
-    console.log(context);
+
     // Story generation
     try {
       console.log("======GENERATING STORY=======");
@@ -65,12 +70,19 @@ const TeacherDashboard = (props) => {
       });
 
       const story = await callGPT4(context);
-      console.log("raw generated story: ", story);
+      //       const story = `[{"name": "Chapter 1: A Peaceful Morning", "prompt": "A serene morning at Pearl Harbor by Thomas Cole, Breath-taking digital painting with placid colours, amazing art, artstation 3, cottagecore", "story": ["You are a young U.S. soldier stationed at Pearl Harbor, enjoying a peaceful Sunday morning. The sun is just beginning to rise, casting a warm glow over the calm waters of the harbor. You take a deep breath, appreciating the tranquility of the moment, unaware that your life is about to change forever.", "As you walk along the shoreline, you admire the impressive fleet of U.S. Navy battleships anchored in the harbor. You feel a sense of pride and security, knowing that these powerful vessels are here to protect your country. Little do you know that an enemy force is lurking just beyond the horizon, preparing to strike.", "You head back to your barracks, eager to start your day. The base is bustling with activity, as soldiers and sailors go about their daily routines. You can't help but feel grateful for the camaraderie and sense of purpose that comes with serving your country."]},
+
+      // {"name": "Chapter 2: The Attack Begins", "prompt": "The sudden attack on Pearl Harbor by Thomas Cole, Breath-taking digital painting with dramatic colours, amazing art, artstation 3, cottagecore", "story": ["At 7:48 a.m. Hawaiian Time, the sound of aircraft engines fills the air. You look up to see a swarm of Imperial Japanese aircraft, including fighters, level and dive bombers, and torpedo bombers, descending upon the harbor. Panic sets in as you realize that your peaceful morning has turned into a nightmare.", "The Japanese aircraft, launched from six aircraft carriers, come in two waves. They target the eight U.S. Navy battleships present, unleashing a barrage of bombs and torpedoes. Explosions rock the harbor, and thick smoke fills the air. You watch in horror as the mighty battleships are damaged and sunk, one by one.", "As the attack continues, you and your fellow soldiers scramble to defend the base. You man anti-aircraft guns, desperately trying to shoot down the enemy planes. Despite your best efforts, more than 180 U.S. aircraft are destroyed, and the base suffers heavy damage."]},
+
+      // {"name": "Chapter 3: Devastation and Loss", "prompt": "The aftermath of the attack on Pearl Harbor by Thomas Cole, Breath-taking digital painting with somber colours, amazing art, artstation 3, cottagecore", "story": ["When the attack finally ends, you survey the devastation around you. The once-proud fleet of battleships lies in ruins, with four sunk and the rest heavily damaged. The Japanese have also sunk or damaged three cruisers, three destroyers, an anti-aircraft training ship, and one minelayer.", "The human toll is even more staggering. 2,403 Americans have been killed, and 1,178 others are wounded. You search for your friends and comrades among the wreckage, praying that they have survived. The reality of war has never been more apparent, and you are left to grapple with the senselessness of the violence.", "Despite the destruction, you can't help but notice that some important base installations have been spared. The power station, dry dock, shipyard, maintenance, and fuel and torpedo storage facilities, as well as the submarine piers and headquarters building, have not been attacked. This small mercy offers a glimmer of hope amid the chaos."]},
+
+      // {"name": "Chapter 4: Rising from the Ashes", "prompt": "The recovery and rebuilding of Pearl Harbor by Thomas Cole, Breath-taking digital painting with hopeful colours, amazing art, artstation 3, cottagecore", "story": ["In the days and weeks that follow, you and your fellow soldiers work tirelessly to recover and rebuild. The sunken battleships, with the exception of the USS Arizona, are raised, and six of them are eventually returned to service. The base slowly comes back to life, a testament to the resilience and determination of the American spirit.", "As you work to repair the damage, you learn that the Japanese losses were relatively light: 29 aircraft and five midget submarines. This knowledge only fuels your resolve to fight back and ensure that the sacrifices of your fallen comrades were not in vain.", "The attack on Pearl Harbor has galvanized the nation, and the United States officially enters World War II. You and your fellow soldiers are more determined than ever to defend your country and bring an end to the conflict."]},
+
+      // {"name": "Chapter 5: The Tragedies of War", "prompt": "A soldier reflecting on the tragedies of war by Thomas Cole, Breath-taking digital painting with introspective colours, amazing art, artstation 3, cottagecore", "story": ["As you continue to serve in the war, you are constantly reminded of the tragedies that come with it. The loss of life, the destruction of homes and communities, and the suffering of innocent civilians weigh heavily on your heart.", "You think back to that fateful morning at Pearl Harbor, and the peaceful world that was shattered in an instant. You realize that war is not a glorious adventure, but a brutal and unforgiving reality that leaves scars on both the land and the people who inhabit it.", "As the war rages on, you vow to do everything in your power to bring about peace and prevent future generations from experiencing the same horrors. You carry the memories of Pearl Harbor with you, a solemn reminder of the tragedies of war and the importance of working towards a more peaceful world."]}]`;
       let chapters = [];
       let cleaned_story = "";
       try {
         cleaned_story = story.replaceAll("\n", "").trim();
-        console.log(cleaned_story);
         chapters = JSON.parse(cleaned_story);
       } catch (e) {
         console.error(e);
@@ -106,12 +118,22 @@ const TeacherDashboard = (props) => {
         description:
           "A beautiful collection of images that will give life to your story book!",
       });
+
       for (let i = 0; i < chapters.length; i++) {
         const imgPrompt = chapters[i].prompt;
         const imgUrl = await callDALLE(imgPrompt);
-        console.log(imgUrl);
+        console.log("dalle image url: ", imgUrl);
 
-        chapters[i].img_url = imgUrl;
+        console.log("calling custom function");
+
+        // Call the helloWorld Firebase function
+        const funcResponse = await callCustomFunction({
+          imgUrl,
+        });
+        console.log("helloWorld function result:", funcResponse.firebaseImgUrl);
+
+        // Assign the Firebase image URL to the chapter or character
+        chapters[i].img_url = imgPrompt;
       }
 
       setGeneratingState({
@@ -259,6 +281,8 @@ const TeacherDashboard = (props) => {
             onClick={async () => {
               // const result = await callGPT4("");
               // console.log(result);
+              // const helloWorldResult = await callCustomFunction();
+              // console.log("helloWorld function result:", helloWorldResult.data);
               await handleSubmit();
             }}
           >
