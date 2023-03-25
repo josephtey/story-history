@@ -5,16 +5,27 @@ import { db } from "../firebase";
 import { doc, addDoc, collection } from "firebase/firestore";
 import ReactLoading from "react-loading";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { TiTick } from "react-icons/ti";
 
 const functions = getFunctions();
 const callCustomFunction = httpsCallable(functions, "getFirebaseImageUrl");
+
+const DEFAULT_GENERATING_STATE = {
+  story: false,
+  characters: false,
+  story_images: false,
+  character_images: false,
+};
 
 const { TextArea } = Input;
 
 const TeacherDashboard = (props) => {
   const [form] = Form.useForm();
+
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatingState, setGeneratingState] = useState("");
+  const [generatingState, setGeneratingState] = useState(
+    DEFAULT_GENERATING_STATE
+  );
   const [error, setError] = useState(null);
 
   const buildPrompt = ({ event, summary, perspective, setting, learning }) => {
@@ -26,10 +37,9 @@ const TeacherDashboard = (props) => {
     2. The story must be historically accurate and consistent with the above summary. 
     3. The story is a second-person narrative. 
     4. The story is about: ${event}
-    5. The story should teach people about: ${learning}
-    6. The reader should take on the persona of: ${perspective}
-    7. The story is set in: ${setting} 
-    8. Start the story by introducing who the reader is.
+    5. The reader should take on the persona of: ${perspective}
+    6. The story is set in: ${setting} 
+    7. Start the story by introducing who the reader is.
         
     For each of the 5 chapters:
     1. Each chapter should have an appropriate title.
@@ -62,13 +72,6 @@ const TeacherDashboard = (props) => {
     // Story generation
     try {
       console.log("======GENERATING STORY=======");
-      setGeneratingState({
-        time: "3 minutes left",
-        state: "Generating story...",
-        description:
-          "A story filled with emotion, experience, and beauty - one that will captivate and draw your reader in!",
-      });
-
       const story = await callGPT4(context);
       //       const story = `[{"name": "Chapter 1: A Peaceful Morning", "prompt": "A serene morning at Pearl Harbor by Thomas Cole, Breath-taking digital painting with placid colours, amazing art, artstation 3, cottagecore", "story": ["You are a young U.S. soldier stationed at Pearl Harbor, enjoying a peaceful Sunday morning. The sun is just beginning to rise, casting a warm glow over the calm waters of the harbor. You take a deep breath, appreciating the tranquility of the moment, unaware that your life is about to change forever.", "As you walk along the shoreline, you admire the impressive fleet of U.S. Navy battleships anchored in the harbor. You feel a sense of pride and security, knowing that these powerful vessels are here to protect your country. Little do you know that an enemy force is lurking just beyond the horizon, preparing to strike.", "You head back to your barracks, eager to start your day. The base is bustling with activity, as soldiers and sailors go about their daily routines. You can't help but feel grateful for the camaraderie and sense of purpose that comes with serving your country."]},
 
@@ -91,10 +94,8 @@ const TeacherDashboard = (props) => {
       // Character generation
       console.log("========GENERATING CHARACTERS========");
       setGeneratingState({
-        time: "1.5 minutes left",
-        state: "Generating characters...",
-        description:
-          "Imagine your student is able to interact with a diverse range of characters that lived during this historical period...",
+        ...generatingState,
+        story: true,
       });
       const characterContext = buildCharacterMap(chapters.slice(0, 2), values);
       console.log(characterContext);
@@ -113,10 +114,9 @@ const TeacherDashboard = (props) => {
 
       console.log("========GENERATING DALL E IMAGES========");
       setGeneratingState({
-        time: "1 minute left",
-        state: "Generating images for your story...",
-        description:
-          "A beautiful collection of images that will give life to your story book!",
+        ...generatingState,
+        story: true,
+        characters: true,
       });
 
       for (let i = 0; i < chapters.length; i++) {
@@ -124,22 +124,23 @@ const TeacherDashboard = (props) => {
         const imgUrl = await callDALLE(imgPrompt);
         console.log("dalle image url: ", imgUrl);
 
-        console.log("calling custom function");
+        // console.log("calling custom function");
 
         // Call the helloWorld Firebase function
-        const funcResponse = await callCustomFunction({
-          imgUrl,
-        });
-        console.log("helloWorld function result:", funcResponse.firebaseImgUrl);
+        // const funcResponse = await callCustomFunction({
+        //   imgUrl,
+        // });
+        // console.log("helloWorld function result:", funcResponse.firebaseImgUrl);
 
         // Assign the Firebase image URL to the chapter or character
-        chapters[i].img_url = imgPrompt;
+        chapters[i].img_url = imgUrl;
       }
 
       setGeneratingState({
-        time: "30 seconds left",
-        state: "Generating images for your characters...",
-        description: "Turning personalities into a visual depiction.",
+        ...generatingState,
+        story: true,
+        characters: true,
+        story_images: true,
       });
       for (let i = 0; i < characters.length; i++) {
         const imgPrompt = characters[i].description;
@@ -148,7 +149,13 @@ const TeacherDashboard = (props) => {
 
         characters[i].img_url = imgUrl;
       }
-      setGeneratingState("Nearly there!");
+      setGeneratingState({
+        ...generatingState,
+        story: true,
+        characters: true,
+        story_images: true,
+        character_images: true,
+      });
       const docData = {
         metaData: values,
         chapters,
@@ -174,7 +181,7 @@ const TeacherDashboard = (props) => {
         onClick={() => {
           setError(null);
           setIsGenerating(false);
-          setGeneratingState(false);
+          setGeneratingState(DEFAULT_GENERATING_STATE);
         }}
       >
         Try again
@@ -182,23 +189,65 @@ const TeacherDashboard = (props) => {
     </div>
   ) : isGenerating ? (
     <div className="flex w-full justify-center content-center h-screen flex-wrap flex-col gap-4">
-      <Card
-        className="mt-4 self-center"
-        title={
-          <div className="flex flex-row gap-2">
-            <ReactLoading
-              className="self-center"
-              type={"spin"}
-              color={"white"}
-              height={15}
-              width={15}
-            />
-            {generatingState?.state}
+      <Card className="mt-4 self-center" title={"In Progress"}>
+        <div className="flex flex-col">
+          <div className="flex flex-row gap-4">
+            {generatingState.story ? (
+              <TiTick size={"1.5em"} color={"green"} />
+            ) : (
+              <ReactLoading
+                className="self-center"
+                type={"spin"}
+                color={"white"}
+                height={15}
+                width={15}
+              />
+            )}
+            Generating Story{" "}
           </div>
-        }
-        extra={generatingState?.time}
-      >
-        <p>{generatingState?.description}</p>
+          <div className="flex flex-row gap-4">
+            {generatingState.characters ? (
+              <TiTick size={"1.5em"} color={"green"} />
+            ) : (
+              <ReactLoading
+                className="self-center"
+                type={"spin"}
+                color={"white"}
+                height={15}
+                width={15}
+              />
+            )}
+            Generating Characters{" "}
+          </div>
+          <div className="flex flex-row gap-4">
+            {generatingState.story_images ? (
+              <TiTick size={"1.5em"} color={"green"} />
+            ) : (
+              <ReactLoading
+                className="self-center"
+                type={"spin"}
+                color={"white"}
+                height={15}
+                width={15}
+              />
+            )}
+            Generating Images for Story{" "}
+          </div>
+          <div className="flex flex-row gap-4">
+            {generatingState.character_images ? (
+              <TiTick size={"1.5em"} color={"green"} />
+            ) : (
+              <ReactLoading
+                className="self-center"
+                type={"spin"}
+                color={"white"}
+                height={15}
+                width={15}
+              />
+            )}
+            Generating Images for Characters{" "}
+          </div>
+        </div>
       </Card>
       {/* <Button
         type="dashed"
@@ -231,19 +280,35 @@ const TeacherDashboard = (props) => {
         Back
       </Button>
       <h1 className="font-bold text-3xl mb-4">Create Your Story</h1>
-      <Form form={form} layout="vertical" autoComplete="off">
+      <Form
+        form={form}
+        layout="vertical"
+        autoComplete="off"
+        onFinish={async () => {
+          await handleSubmit();
+        }}
+      >
         <Form.Item
           label="What historical event would you like to teach?"
           name="event"
+          rules={[
+            { required: true, message: "Please input the historical event." },
+          ]}
         >
           <Input placeholder="e.g. The Attack on Pearl Harbour" />
         </Form.Item>
         <Form.Item
           label="Paste a historically accurate summary of this event (use Wikipedia!)"
           name="summary"
+          rules={[
+            {
+              required: true,
+              message: "Please input a factual summary of the event.",
+            },
+          ]}
         >
           <TextArea
-            maxLength={1000}
+            maxLength={1500}
             showCount
             placeholder="e.g. The attack commenced at 7:48 a.m. Hawaiian Time (6:18 p.m. GMT). The base was attacked by 353 Imperial Japanese aircraft (including fighters, level and dive bombers, and torpedo bombers) in two waves, launched from six aircraft carriers. Of the eight U.S. Navy battleships present, all were damaged, with four sunk. All but USS Arizona were later raised, and six were returned to service and went on to fight in the war. The Japanese also sank or damaged three cruisers, three destroyers, an anti-aircraft training ship, and one minelayer. More than 180 US aircraft were destroyed. 2,403 Americans were killed and 1,178 others were wounded. Important base installations such as the power station, dry dock, shipyard, maintenance, and fuel and torpedo storage facilities, as well as the submarine piers and headquarters building (also home of the intelligence section) were not attacked. Japanese losses were light: 29 aircraft and five midget submarines lost, and 64 servicemen killed. Kazuo Sakamaki, the commanding officer of one of the submarines, was captured."
           />
@@ -252,19 +317,28 @@ const TeacherDashboard = (props) => {
         <Form.Item
           label="What perspective should your student take on?"
           name="perspective"
+          rules={[
+            {
+              required: true,
+              message:
+                "Please input a perspective you want your students to adopt.",
+            },
+          ]}
         >
           <Input placeholder="e.g. U.S. Soldier" />
         </Form.Item>
 
-        <Form.Item label="Your story is set in..." name="setting">
-          <Input placeholder="e.g. Pearl Harbour" />
-        </Form.Item>
-
         <Form.Item
-          label="At the end of the story, what do you want your students to learn?"
-          name="learning"
+          label="Your story is set in..."
+          name="setting"
+          rules={[
+            {
+              required: true,
+              message: "Please input the setting of your story.",
+            },
+          ]}
         >
-          <Input placeholder="e.g. The Tragedies of War" />
+          <Input placeholder="e.g. Pearl Harbour" />
         </Form.Item>
         {/* 
         <Form.Item
@@ -275,17 +349,7 @@ const TeacherDashboard = (props) => {
         </Form.Item> */}
 
         <Form.Item>
-          <Button
-            type="default"
-            htmlType="submit"
-            onClick={async () => {
-              // const result = await callGPT4("");
-              // console.log(result);
-              // const helloWorldResult = await callCustomFunction();
-              // console.log("helloWorld function result:", helloWorldResult.data);
-              await handleSubmit();
-            }}
-          >
+          <Button type="default" htmlType="submit">
             Generate Story!
           </Button>
         </Form.Item>
